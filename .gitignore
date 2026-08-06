@@ -45,3 +45,11 @@ next-env.d.ts
 /node_modules_incomplete_*/
 /tmp/sites-dev*.log
 *.tsbuildinfo
+/.vscode/
+/real_images/
+/古籍/
+/DynastyFlow-Net.pdf
+/DynastyFlow-Net.txt
+/yiguan-deploy.tar.gz
+/dev-server*.log
+/ttt.py

@@ -33,9 +33,10 @@ const garments: Garment[] = [
 ];
 
 const excerpts = [
-  { id:"zhouli", book:"《周礼》", chapter:"礼制相关篇章", note:"演示整理 · 正式引文待版本校核", text:"王之吉服，祀昊天上帝则服大裘而冕，祀五帝亦如之。" },
-  { id:"yufu", book:"《旧唐书·舆服志》", chapter:"舆服志", note:"演示整理 · 请以可靠版本复核", text:"其服冠冕衣裳，制度沿革，各有等差；锦袍绯服，因品秩而见。" },
-  { id:"mingshi", book:"《明史·舆服志》", chapter:"舆服志", note:"演示性摘要 · 非正式引用", text:"凡冠服之制，上下辨等，袍、带、冠、履，各随其品。" },
+  { id:"shiming", book:"《释名》", chapter:"释衣服", author:"[东汉] 刘熙 撰", note:"已核对识典古籍章节文本；书影为本地采集素材，版本信息仍待补录", sourceUrl:"https://www.shidianguji.com/book/HY6730/chapter/1lda59o5d2a02", image:"/content/texts/shiming-shiyifu.png", text:"凡服上曰衣，衣，依也，人所依以芘寒暑也。下曰裳，裳，障也，所以自障蔽也。领，颈也，以壅颈也。亦言总领衣体为端首也。襟，禁也，交于前，所以禁御风寒也。袂，掣也。掣，开也，开张之，以受臂屈伸也。祛，虚也。袖，由也，手所由出入也。" },
+  { id:"jiutangshu", book:"《旧唐书》", chapter:"舆服", author:"[五代] 刘昫等 撰", note:"已核对识典古籍章节文本；制度用语不直接等同于存世实物形态", sourceUrl:"https://www.shidianguji.com/book/LS0016/chapter/LS0016_107", image:"/content/texts/jiutangshu-yufu.png", text:"衣裳有常服、公服、朝服、祭服四等之制。平巾帻，牛角箄簪，紫衫，白袍，靴，起梁带。五品已上，金玉钿饰，用犀为簪，是为常服，武官尽服之。六品已下，衫以绯。" },
+  { id:"xintangshu", book:"《新唐书》", chapter:"车服志第十四", author:"[北宋] 欧阳修、宋祁等 撰", note:"已核对识典古籍章节文本；页面展示节录，完整上下文请查看来源", sourceUrl:"https://www.shidianguji.com/book/LS0017/chapter/LS0017_27", image:"/content/texts/xintangshu-chefu.png", text:"唐初受命，车服皆因隋旧。武德四年，始著车舆衣服之令，上得兼下，下不得疑上。" },
+  { id:"moshangsang", book:"汉乐府《陌上桑》", chapter:"秦氏有好女", author:"汉乐府", note:"本地书影已入库；具体底本及识典对应章节待进一步核定", sourceUrl:"https://www.shidianguji.com/", image:"/content/texts/moshangsang.png", text:"头上倭堕髻，耳中明月珠。缃绮为下裙，紫绮为上襦。行者见罗敷，下担捋髭须。" },
 ];
 
 const evidenceCases = [
@@ -100,11 +101,12 @@ function GarmentCard({garment:g,index=0}:{garment:Garment,index?:number}) {
 
 function Texts() {
   const [book,setBook]=useState(excerpts[0]); const [vertical,setVertical]=useState(false); const [term,setTerm]=useState<Garment|null>(null);
-  const hits = ["冠","袍","锦","绯","裳","冕"];
-  const render=(text:string)=>text.split(new RegExp(`(${hits.join("|")})`,"g")).map((n,i)=>hits.includes(n)?<button className="text-hit" key={i} onClick={()=>setTerm(garments.find(g=>g.name.includes(n)||g.alias.includes(n))||garments[0])}>{n}</button>:<span key={i}>{n}</span>);
+  const mentions:Record<string,string>={"衣":"shenyi","裳":"qun","裙":"qun","襦":"ru","袍":"yuanlingpao","衫":"yuanlingpao","冠":"guan","帻":"futou","带":"dai","靴":"xue","绯":"fei","锦":"jin"};
+  const hits=Object.keys(mentions);
+  const render=(text:string)=>text.split(new RegExp(`(${hits.join("|")})`,"g")).map((n,i)=>mentions[n]?<button className="text-hit" key={i} onClick={()=>setTerm(garments.find(g=>g.id===mentions[n])||garments[0])}>{n}</button>:<span key={i}>{n}</span>);
   return <Shell><PageIntro kicker="TEXTUAL DISCOVERY" title="古籍寻衣" desc="不是把古籍搬上屏幕，而是从一句话里，找出一件衣冠通往历史的入口。" />
     <section className="workspace"><aside className="book-list"><h2>典籍目次</h2>{excerpts.map(e=><button className={e.id===book.id?"active":""} onClick={()=>{setBook(e);setTerm(null)}} key={e.id}><b>{e.book}</b><small>{e.chapter}</small></button>)}<div className="legend"><h3>标注图例</h3><span><i className="dot garment"/>服装</span><span><i className="dot head"/>首服</span><span><i className="dot material"/>材料与颜色</span></div></aside>
-    <article className="text-reader"><div className="reader-tools"><div><b>{book.book}</b><span>{book.chapter}</span></div><button onClick={()=>setVertical(!vertical)}>{vertical?"横排阅读":"竖排阅读"}</button></div><div className={vertical?"source-text vertical":"source-text"}>{render(book.text)}</div><div className="source-note"><Status value="待校核"/><p>{book.note}。正式发布前应补充版本、卷次、页码或稳定来源链接。</p></div></article>
+    <article className="text-reader"><div className="reader-tools"><div><b>{book.book}</b><span>{book.chapter} · {book.author}</span></div><button onClick={()=>setVertical(!vertical)}>{vertical?"横排阅读":"竖排阅读"}</button></div><figure className="facsimile"><a href={book.image} target="_blank" rel="noreferrer"><img src={book.image} alt={`${book.book}${book.chapter}书影`}/></a><figcaption>书影与释文对读 · 点击图片可查看原始尺寸</figcaption></figure><div className={vertical?"source-text vertical":"source-text"}>{render(book.text)}</div><div className="source-note"><Status value={book.id==="moshangsang"?"待校核":"已核对"}/><p>{book.note}。</p><a href={book.sourceUrl} target="_blank" rel="noreferrer">在识典古籍查看来源 ↗</a></div></article>
     <aside className={`knowledge-drawer ${term?"visible":""}`}>{term?<><button className="close" onClick={()=>setTerm(null)}>关闭</button><p className="eyebrow">词条速览</p><h2>{term.name}</h2><p>{term.summary}</p><dl><div><dt>类别</dt><dd>{term.category}</dd></div><div><dt>时间范围</dt><dd>{term.period}</dd></div><div><dt>证据</dt><dd>{term.evidence}条</dd></div></dl><Link className="primary" href={`/garments/${term.id}`}>进入完整词条</Link><Link href="/contribute">补充这条标注 →</Link></>:<div className="drawer-empty"><span>批</span><p>点击原文中带朱线的词语，查看衣冠知识卡。</p></div>}</aside></section>
   </Shell>;
 }

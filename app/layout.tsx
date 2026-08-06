@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000",
+  ),
   title: "衣冠藏卷｜中华古籍服饰文化数字探索平台",
   description: "从古籍文字中发现服饰，以古画、壁画与文物相互印证，共同补全散落在历史中的衣冠线索。",
   icons: { icon: "/favicon.svg" },

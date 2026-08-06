@@ -1,15 +1,16 @@
-import { eq, sql } from "drizzle-orm";
-import { getDb } from "../../../../db";
-import { reviews, submissions } from "../../../../db/schema";
+type DemoSubmission = { id:number; status:string; reviewNote:string; [key:string]:unknown };
+const globalStore = globalThis as typeof globalThis & { yiguanSubmissions?: DemoSubmission[] };
 
 export async function PATCH(request:Request,{params}:{params:Promise<{id:string}>}){
-  try{
-    const {id}=await params; const numeric=Number(id); const body=await request.json() as {status?:string;reviewNote?:string};
-    if(!Number.isInteger(numeric)) return Response.json({error:"无效记录号"},{status:400});
-    if(!["approved","rejected","disputed"].includes(body.status||"")) return Response.json({error:"无效审核状态"},{status:400});
-    const db=getDb();
-    const [row]=await db.update(submissions).set({status:body.status!,reviewNote:body.reviewNote||"",updatedAt:sql`CURRENT_TIMESTAMP`}).where(eq(submissions.id,numeric)).returning();
-    await db.insert(reviews).values({submissionId:numeric,status:body.status!,note:body.reviewNote||""});
-    return Response.json({submission:row});
-  }catch(error){return Response.json({error:error instanceof Error?error.message:"审核失败"},{status:500})}
+  const {id}=await params;
+  const body=await request.json() as {status?:string;reviewNote?:string};
+  if(!["approved","rejected","disputed"].includes(body.status||"")) {
+    return Response.json({error:"无效审核状态"},{status:400});
+  }
+  const rows=globalStore.yiguanSubmissions ?? [];
+  const row=rows.find((item)=>item.id===Number(id));
+  if(!row) return Response.json({error:"演示记录不存在或运行实例已刷新"},{status:404});
+  row.status=body.status!;
+  row.reviewNote=body.reviewNote||"";
+  return Response.json({submission:row,storageMode:"demo"});
 }
